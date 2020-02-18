@@ -1,0 +1,26 @@
+# permissions to do edit remotecontents.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: remotecontent-editor-role
+rules:
+- apiGroups:
+  - web.phillebaba.io
+  resources:
+  - remotecontents
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - web.phillebaba.io
+  resources:
+  - remotecontents/status
+  verbs:
+  - get
+  - patch
+  - update

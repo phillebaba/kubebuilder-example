@@ -1,0 +1,7 @@
+apiVersion: web.phillebaba.io/v1alpha1
+kind: RemoteContent
+metadata:
+  name: remotecontent-sample
+spec:
+  # Add fields here
+  foo: bar

@@ -1,0 +1,20 @@
+# permissions to do viewer remotecontents.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: remotecontent-viewer-role
+rules:
+- apiGroups:
+  - web.phillebaba.io
+  resources:
+  - remotecontents
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - web.phillebaba.io
+  resources:
+  - remotecontents/status
+  verbs:
+  - get

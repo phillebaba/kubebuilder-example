@@ -1,3 +1,7 @@
 domain: phillebaba.io
 repo: github.com/phillebaba/kubebuilder-example
+resources:
+- group: web
+  kind: RemoteContent
+  version: v1alpha1
 version: "2"
