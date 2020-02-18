@@ -3,5 +3,4 @@ kind: RemoteContent
 metadata:
   name: remotecontent-sample
 spec:
-  # Add fields here
-  foo: bar
+  url: "https://example.com"

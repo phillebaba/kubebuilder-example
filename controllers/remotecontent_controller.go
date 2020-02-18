@@ -17,8 +17,12 @@ package controllers
 
 import (
 	"context"
+	"io/ioutil"
+	"net/http"
 
 	"github.com/go-logr/logr"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -35,12 +39,44 @@ type RemoteContentReconciler struct {
 
 // +kubebuilder:rbac:groups=web.phillebaba.io,resources=remotecontents,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=web.phillebaba.io,resources=remotecontents/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=core,resources=configmaps,verbs=get;list;watch;create;update;patch;delete
 
 func (r *RemoteContentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("remotecontent", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("remotecontent", req.NamespacedName)
 
-	// your logic here
+	var rc webv1alpha1.RemoteContent
+	if err := r.Get(ctx, req.NamespacedName, &rc); err != nil {
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	resp, err := http.Get(rc.Spec.Url)
+	if err != nil {
+		log.Error(err, "unable to make request", "url", rc.Spec.Url)
+		return ctrl.Result{}, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Error(err, "could not read response body")
+		return ctrl.Result{}, err
+	}
+	content := string(body)
+
+	cm := &corev1.ConfigMap{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      rc.Name,
+			Namespace: rc.Namespace,
+		},
+	}
+
+	if _, err := ctrl.CreateOrUpdate(ctx, r.Client, cm, func() error {
+		cm.Data = map[string]string{"content": content}
+		return ctrl.SetControllerReference(&rc, cm, r.Scheme)
+	}); err != nil {
+
+		return ctrl.Result{}, err
+	}
 
 	return ctrl.Result{}, nil
 }

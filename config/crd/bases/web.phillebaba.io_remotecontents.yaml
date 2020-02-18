@@ -34,10 +34,11 @@ spec:
         spec:
           description: RemoteContentSpec defines the desired state of RemoteContent
           properties:
-            foo:
-              description: Foo is an example field of RemoteContent. Edit RemoteContent_types.go
-                to remove/update
+            url:
+              description: Url to fetch content from.
               type: string
+          required:
+          - url
           type: object
         status:
           description: RemoteContentStatus defines the observed state of RemoteContent
