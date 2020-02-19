@@ -25,13 +25,22 @@ type RemoteContentSpec struct {
 	Url string `json:"url"`
 }
 
+// Indicates the status of the request
+type RequestState string
+
+var (
+	Pending  RequestState = "Pending"
+	Failed   RequestState = "Failed"
+	Succeded RequestState = "Succeeded"
+)
+
 // RemoteContentStatus defines the observed state of RemoteContent
 type RemoteContentStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	State RequestState `json:"state"`
 }
 
 // +kubebuilder:object:root=true
+// +kubebuilder:subresource:status
 
 // RemoteContent is the Schema for the remotecontents API
 type RemoteContent struct {

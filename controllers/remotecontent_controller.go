@@ -45,20 +45,33 @@ func (r *RemoteContentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 	ctx := context.Background()
 	log := r.Log.WithValues("remotecontent", req.NamespacedName)
 
+	set_state := func(rc *webv1alpha1.RemoteContent, state webv1alpha1.RequestState) {
+		rc.Status.State = state
+		if err := r.Status().Update(ctx, rc); err != nil {
+			log.Error(err, "unable to update RemoteContent status")
+		}
+	}
+
 	var rc webv1alpha1.RemoteContent
 	if err := r.Get(ctx, req.NamespacedName, &rc); err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
+	if rc.Status.State == "" {
+		set_state(&rc, webv1alpha1.Pending)
+	}
+
 	resp, err := http.Get(rc.Spec.Url)
 	if err != nil {
 		log.Error(err, "unable to make request", "url", rc.Spec.Url)
+		set_state(&rc, webv1alpha1.Failed)
 		return ctrl.Result{}, err
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err, "could not read response body")
+		set_state(&rc, webv1alpha1.Failed)
 		return ctrl.Result{}, err
 	}
 	content := string(body)
@@ -74,10 +87,11 @@ func (r *RemoteContentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 		cm.Data = map[string]string{"content": content}
 		return ctrl.SetControllerReference(&rc, cm, r.Scheme)
 	}); err != nil {
-
+		set_state(&rc, webv1alpha1.Failed)
 		return ctrl.Result{}, err
 	}
 
+	set_state(&rc, webv1alpha1.Succeded)
 	return ctrl.Result{}, nil
 }
 

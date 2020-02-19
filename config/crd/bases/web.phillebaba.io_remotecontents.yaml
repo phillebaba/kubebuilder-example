@@ -15,6 +15,8 @@ spec:
     plural: remotecontents
     singular: remotecontent
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: RemoteContent is the Schema for the remotecontents API
@@ -42,6 +44,12 @@ spec:
           type: object
         status:
           description: RemoteContentStatus defines the observed state of RemoteContent
+          properties:
+            state:
+              description: Indicates the status of the request
+              type: string
+          required:
+          - state
           type: object
       type: object
   version: v1alpha1

@@ -1,6 +1,6 @@
 apiVersion: web.phillebaba.io/v1alpha1
 kind: RemoteContent
 metadata:
-  name: remotecontent-sample
+  name: pastebin
 spec:
   url: "https://example.com"
