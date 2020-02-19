@@ -8,6 +8,13 @@ metadata:
   creationTimestamp: null
   name: remotecontents.web.phillebaba.io
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .status.state
+    name: State
+    type: string
+  - JSONPath: .metadata.creationTimestamp
+    name: Age
+    type: date
   group: web.phillebaba.io
   names:
     kind: RemoteContent
