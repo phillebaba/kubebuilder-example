@@ -98,5 +98,6 @@ func (r *RemoteContentReconciler) Reconcile(req ctrl.Request) (ctrl.Result, erro
 func (r *RemoteContentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&webv1alpha1.RemoteContent{}).
+		Owns(&corev1.ConfigMap{}).
 		Complete(r)
 }
